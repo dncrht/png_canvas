@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/dncrht/png_canvas.svg?branch=master)](https://travis-ci.org/dncrht/png_canvas)
+
 # png_canvas
 
 A pure Ruby reimplementation of Rui Carmo's [pngcanvas](https://github.com/rcarmo/pngcanvas) Python library, featuring text writing and few renames.
