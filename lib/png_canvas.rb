@@ -102,9 +102,9 @@ class PngCanvas
     end
   end
 
-  def vertical_gradient(x0, y0, x1, y1, from, to)
+  def vertical_gradient(x0, y0, x1, y1, from_color, to_color)
     x0, y0, x1, y1 = rectangle_helper(x0, y0, x1, y1)
-    gradient = gradient_list(from, to, y1 - y0)
+    gradient = gradient_list(from_color, to_color, y1 - y0)
     (x0..x1).each do |x|
       (y0..y1).each do |y|
         point(x, y, gradient[y - y0])
@@ -126,21 +126,21 @@ class PngCanvas
     end
   end
 
-  def copy_rectangle(x0, y0, x1, y1, dx, dy, destination)
+  def copy_rectangle(x0, y0, x1, y1, dx, dy, destination_png)
     x0, y0, x1, y1 = rectangle_helper(x0, y0, x1, y1)
     (x0..x1).each do |x|
       (y0..y1).each do |y|
-        destination.canvas[dy + y - y0][dx + x - x0] = @canvas[y][x]
+        destination_png.canvas[dy + y - y0][dx + x - x0] = @canvas[y][x]
       end
     end
   end
 
-  def blend_rectangle(x0, y0, x1, y1, dx, dy, destination, alpha = 0xff)
+  def blend_rectangle(x0, y0, x1, y1, dx, dy, destination_png, alpha = 0xff)
     x0, y0, x1, y1 = rectangle_helper(x0, y0, x1, y1)
     (x0..x1).each do |x|
       (y0..y1).each do |y|
         rgba = @canvas[y][x] + [alpha]
-        destination.point(dx + x - x0, dy + y - y0, rgba)
+        destination_png.point(dx + x - x0, dy + y - y0, rgba)
       end
     end
   end
@@ -226,9 +226,14 @@ class PngCanvas
     point(x1, y1)
   end
 
-  def polyline(arr)
-    (arr.size - 1).times do |i|
-      line(arr[i].first, arr[i].last, arr[i + 1].first, arr[i + 1].last)
+  def polyline(point_array)
+    (point_array.size - 1).times do |i|
+      line(
+        point_array[i].first,
+        point_array[i].last,
+        point_array[i + 1].first,
+        point_array[i + 1].last
+      )
     end
   end
 
@@ -251,14 +256,14 @@ class PngCanvas
       pack_chunk('IEND', '')
   end
 
-  def save(name)
-    file = File.open name, 'wb'
+  def save(file_path)
+    file = File.open file_path, 'wb'
     file.write dump
     file.close
   end
 
-  def load(name)
-    file = File.open name, 'rb'
+  def load(file_path)
+    file = File.open file_path, 'rb'
     @canvas = []
 
     file.read(8) # load png header
